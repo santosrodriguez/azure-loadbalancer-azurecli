@@ -1,0 +1,48 @@
+
+#https://www.expertnetworkconsultant.com/cloud/create-load-balanced-linux-webservers-in-azure-step-by-step/
+
+
+RESOURCE_GROUP=
+LB_PIP=
+
+
+
+az network public-ip create \
+  --resource-group $RESOURCE_GROUP \
+  --name $LB_PIP \
+  --sku Standard \
+  --zone 1 2 3
+
+az network lb create \
+  --resource-group $RESOURCE_GROUP \
+  --name myLoadBalancer \
+  --sku Standard \
+  --public-ip-address $LB_PIP \
+  --frontend-ip-name myFrontEnd \
+  --backend-pool-name myBackEndPool
+
+
+
+
+az network lb probe create \
+  --resource-group $RESOURCE_GROUP \
+  --lb-name myLoadBalancer \
+  --name myHealthProbe \
+  --protocol tcp \
+  --port 80
+
+
+az network lb rule create \
+  --resource-group $RESOURCE_GROUP \
+  --lb-name myLoadBalancer \
+  --name myHTTPRule \
+  --protocol tcp \
+  --frontend-port 80 \
+  --backend-port 80 \
+  --frontend-ip-name myFrontEnd \
+  --backend-pool-name myBackEndPool \
+  --probe-name myHealthProbe \
+  --disable-outbound-snat true \
+  --idle-timeout 15 \
+  --enable-tcp-reset true
+
